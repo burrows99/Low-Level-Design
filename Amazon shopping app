@@ -1,0 +1,114 @@
+# shopping centre:
+#     brand(list)
+#     customer(list)
+#     addvband/removebrand()
+#     add/removecustomer()
+#     place/cancelorder()
+    
+# brand:
+#     name
+#     id
+#     products(list)
+    
+# product:
+#     name
+#     id
+#     rating/stats
+#     availability
+    
+# customer:
+#     name
+#     id
+#     buy()
+#     pay()
+
+# system:
+#     send notification for payment/confirmation
+
+# PaymentType(Credit,debit,upi)
+
+class ShoppingCentre:
+    def __init__(self,server):
+        self.name='Amazon'
+        self.server=server
+        self.brands=[]
+        self.customers=[]
+        self.orders=[]
+    def add(self,collection,item):
+        for itemObject in collection:
+            if(itemObject.getid()==item.getid()):
+                raise Exception(str(item.name)+' already present.')
+                return
+        collection.append(item)
+    def remove(self,collection,item):
+        for itemObject in collection:
+            if(itemObject.getid()==item.getid()):
+                collection.remove(item)
+                return
+        raise Exception(str(item)+' not found.')
+    def addBrand(self,brand):
+        self.server.sendNotification('Your brand has been added',brand)
+        self.add(self.brands,brand)
+    def removeBrand(self,brandName):
+        self.server.sendNotification('Your brand has been removed',brand)
+        self.remove(self.brands,brand)
+    def addCustomer(self,customer):
+        self.server.sendNotification('Your Account has been created',customer)
+        self.add(self.customers,customer)
+    def removeCustomer(self,customer):
+        self.server.sendNotification('Your Account has been deleted',customer)
+        self.remove(self.customers,customer)
+    def placeOrder(self,order):
+        self.server.sendNotification('Your order has been placed',customer)
+        #rememebr to add availabilty logic
+        self.add(self.orders,order)
+    def cancelOrder(Self,order):
+        self.server.sendNotification('Your order has been cancelled',customer)
+        self.remove(self.orders,order)
+
+class Brand:
+    def __init__(self,id,name,shoppingCentre):
+        self.id=id
+        self.name=name
+        self.products=[]
+        self.shoppingCentre=shoppingCentre
+    def addProduct(self,product):
+        self.shoppingCentre.addProduct(self,product)
+    def removeProduct(self,product):
+        self.shoppingCentre.removeProduct(self,product)
+
+class Customer:
+    def __init__(self,id,name,shoppingCentre):
+        self.id=id
+        self.name=name
+        self.shoppingCentre=shoppingCentre
+    def placeOrder(self,order):
+        self.shoppingCentre.placeOrder(order)
+    def cancelOrder(self,order):
+        self.shoppingCentre.cancelOrder(order)
+
+class Order:
+    def __init__(self,orderId,shoppingCentre):
+        self.orderId=orderId
+        self.products=[]
+        self.shoppingCentre=shoppingCentre
+    def addProduct(self,product):
+        if(product.availability):
+            self.shoppingCentre.placeOrder(order)
+        else:
+            raise Exception('Out of stock')
+    def removeProduct(self,product):
+        self.shoppingCentre.cancelOrder(order)
+        
+class Product:
+    def __init__(self,id,name,brand,availabity=True):
+        self.id=id
+        self.name=name
+        self.brand=brand
+        self.availabity=availabity
+
+class Server:
+    def __init__(self,shoppingcenter):
+        self.shoppingcentre=shoppingcentre
+    def sendNotification(self,notification,brand):
+        print(notification,'sent to',brand)
