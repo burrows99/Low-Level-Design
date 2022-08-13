@@ -1,0 +1,98 @@
+import random
+import enum
+class Deck:
+    def __init__(self):
+        self.cards=[]
+        for i in range(1,14):
+            self.cards.append(Card(i,Suit.SPADES))
+            self.cards.append(Card(i,Suit.DIAMONDS))
+            self.cards.append(Card(i,Suit.HEARTS))
+            self.cards.append(Card(i,Suit.CLUBS))
+    def shuffle(self):
+        random.shuffle(self.cards)
+    def popTop(self):
+        if(len(self.cards)>=1):
+            return(self.cards.pop(-1))
+        else:
+            print('Not enough cards')
+    def popBottom(self):
+        if(len(self.cards)>=1):
+            return(self.cards.pop(0))
+        else:
+            print('Not enough cards')
+    def popRandom(self):
+        if(len(self.cards)>=1):
+            index=random.randint(0,len(self.cards))
+            return(self.cards.pop(index))
+        else:
+            print('Not enough cards')
+    def pushTop(self,card):
+        for i in self.cards:
+            if(i.show()==card.show()):
+                print('Card already present')
+                return
+        self.cards.append(card)
+    def pushBottom(self,card):
+        for i in self.cards:
+            if(i.show()==card.show()):
+                print('Card already present')
+                return
+        self.cards.insert(0,card)
+    def pushRandom(self,card):
+        for i in self.cards:
+            if(i.show()==card.show()):
+                print('Card already present')
+                return
+        index=random.randint(0,len(self.cards))
+        self.cards.insert(index,card)
+    def popHand(self,size):
+        if(len(self.cards)>=size):
+            hand=[]
+            while(size):
+                hand.append(self.popTop())
+                size-=1
+            return(hand)
+        else:
+            print('Not Enough Cards')
+    def show(self):
+        output=[]
+        for i in self.cards:
+            output.append(i.show())
+        print(output)
+        
+class Suit(enum.Enum):
+    SPADES='SPADES'
+    DIAMONDS='DIAMONDS'
+    HEARTS='HEARTS'
+    CLUBS='CLUBS'
+
+class Card:
+    def __init__(self,value,suit):
+        self.value=self.convertValue(value)
+        self.suit=suit
+    def getValue(self):
+        return(self.value)
+    def getSuit(self):
+        return(self.suit.name)
+    def show(self):
+        return((self.value,self.suit.name))
+    def convertValue(self,value):
+        if(value==1):
+            value=='A'
+        elif(value==11):
+            value='J'
+        elif(value==12):
+            value='Q'
+        elif(value==13):
+            value='K'
+        else:
+            value=str(value)
+        return(value)
+    
+deck=Deck()
+deck.shuffle()
+for i in range(30):
+    deck.popTop()
+deck.show()
+for i in range(1,14):
+    deck.pushTop(Card(i,Suit.SPADES))
