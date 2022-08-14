@@ -1,0 +1,97 @@
+class OnlineBookReader:
+    def __init__(self,server):
+        self.server=server
+    def buy(self,book):
+        self.server.buy(book)
+    def getpaymentpage(self):
+        return(url)
+    def createAccount(self,id,name):
+        self.server.createAccount(id,name)
+    def deleteAccount(self,id,name):
+        self.server.deleteAccount(id,name)
+
+class Server:
+    def __init__(self):
+        self.customers=[]
+        self.catalogue=[]
+    def buy(self,book):
+        if(book in catalogue):
+            sendNotification('Successful, you can now read the book.')
+        else:
+            pass
+    def sendNotification(self,message):
+        print(message)
+    def addBook(self,book):
+        if(book not in catalogue):
+            self.catalogue.append(book)
+            return
+        raise Exception('Book already in catalogue.')
+    def removeBook(self,book):
+        if(book in catalogue):
+            self.catalogue.remove(book)
+            return
+        raise Exception('Book already not in catalogue.')
+    def createAccount(self,id,name):
+        if(id in self.customers):
+            raise Exception('Account already exists')
+        else:
+            self.append(Customer(is,name))
+    def deleteAccount(self,id,name):
+        if(id in self.customers):
+            self.remove(Customer(is,name))
+        else:
+            raise Exception('Account doesnt exist')
+
+class Customer:
+    def __init__(self,id,name,paymentstatus=PaymentStatus.UNPAID,favourites):
+        self.id=id
+        self.name=name
+        self.paymentstatus=paymentstatus
+    def buy(self,onlineBookReader,book):
+        if(self.paymentstatus==PaymentStatus.PAID):
+            if(book.getstatus()==True):
+                onlineBookReader.buy(book)
+            else:
+                print('out of stock')
+        else:
+            onlineBookReader.getpaymentpage()
+            print('redirecting to payment page')
+    def read(self,book,onlineBookReader):
+        pass
+    def createAccount(self,onlineBookReader):
+        onlineBookReader.createAccount(self.id,self.name)
+    def deleteAccount(self,onlineBookReader):
+        onlineBookReader.deleteAccount(self.id,self.name)
+                
+
+class Book:
+    def __init__(self,id,name,author,genre,category,status):
+        self.id=id
+        self.name=name
+        self.author=author
+        self.genre=genre
+        self.category=category
+        self.status=status
+    def getstatus(self):
+        return(self.status)
+
+class Genre(enum.Enum):
+    DRAMA='DRAMA'
+    COMEDY='COMEDY'
+    HORROR='HORROR'
+    SCIFI='SCIFI'
+
+class Category(enum.Enum):
+    HARDCOVER='HARDCOVER'
+    PAPERBACK='PAPERBACK'
+    NEWSPAPER='NEWPAPER'
+    MAGAZINE='MAGAZINE'
+
+class PaymentStatus(enum.Enum):
+    PAID='PAID'
+    UNPAID='UNPAID'
+    
+class BookStatus(enum.Enum):
+    INSTOCK='IN STOCK'
+    OUTOFSTOCK='OUT OF STOCK'
+
