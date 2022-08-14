@@ -1,56 +1,90 @@
 import enum
-from dataclasses import dataclass
-
-@dataclass
-class Dataclass:
-    def getter(self,instance):
-        return(object.__getattribute__(self,instance))
-    def setter(self,instance,value):
-        object.__setattr__(self,instance,value)
-    
-class Deck(Dataclass):
+class Deck:
     def __init__(self):
         self.cards=[]
+        for faceValue in range(1,14):
+            self.cards.append(Card(faceValue,Suit.SPADES))
+            self.cards.append(Card(faceValue,Suit.HEARTS))
+            self.cards.append(Card(faceValue,Suit.DIAMONDS))
+            self.cards.append(Card(faceValue,Suit.CLUBS))
+    def remove(self,card):
+        for cardObject in self.cards:
+            if(vars(cardObject)==vars(card)):
+                self.cards.remove(cardObject)
+                return
+        raise Exception('Card not present')
     def push(self,card):
-        if(card in self.cards):
-            raise Exception('Card already present')
-            return
+        for cardObject in self.cards:
+            if(vars(cardObject)==vars(card)):
+                raise Exception('Card already present')
+                return
         self.cards.append(card)
     def pop(self):
         if(self.cards):
             self.cards.pop(-1)
-            return
-        raise Exception('No cards present. Cannot pull out a card')
-    def shuffle(self):
-        random.shuffle(self.cards)
-    def distribute(self,n):
-        N=len(self.cards)
+    def display(self):
+        output=[]
+        for card in self.cards:
+            cardValue=list(str(value) for value in vars(card).values())
+            output.append(cardValue)
+        print(output)
+    def distribute(self,players):
+        allHands=[]
+        totalCards=len(self.cards)
+        handSize=totalCards//players
+        while(self.cards):
+            hand=Hand(handSize)
+            for i in range(handSize):
+                hand.add(self.cards.pop(0))
+            allHands.append(hand.value())
+        return(allHands)
+            
+class Hand:
+    def __init__(self,handSize):
+        self.handSize=handSize
+        self.hand=[]
+    def add(self,card):
+        if(len(self.hand)<self.handSize):
+            self.hand.append(card)
+        else:
+            raise Exception('Hand at maximum capacity')
+    def remove(self,card):
+        for cardObject in self.hand:
+            if(vars(cardObject)==vars(card)):
+                self.cards.remove(cardObject)
+                return
+        raise Exception('Card not present')
+    def arrange(self):
+        self.hand.sort()
+    def value(self):
+        output=[]
+        for card in self.hand:
+            cardValue=list(str(value) for value in vars(card).values())
+            output.append(cardValue)
+        return(output)
         
-
-class Card(Dataclass):
-    def __init__(self,facevalue,suit):
-        self.facevalue=self.__convert(facevalue)
+class Card:
+    def __init__(self,faceValue,suit):
+        self.faceValue=self.__convert(faceValue)
         self.suit=suit
     def __convert(self,facevalue):
-        if(2<=facevalue<=10):
-            return(str(facevalue))
-        elif(facevalue==11):
-            return('J')
-        elif(facevalue==12):
-            return('Q')
-        elif(facevalue==13):
-            return('K')
+        hashmap={1:'A',
+                 11:'J',
+                 12:'Q',
+                 13:'K'}
+        if(facevalue in hashmap):
+            return(hashmap[facevalue])
         else:
-            raise Exception('Invalid facevalue')
-            
+            return(str(facevalue))
+        
 class Suit(enum.Enum):
     SPADES='SPADES'
-    DIAMONDS='DIAMONDS'
     HEARTS='HEARTS'
+    DIAMONDS='DIAMONDS'
     CLUBS='CLUBS'
-
-deck= Deck()
-deck.push(1)
-print(deck)
-print(deck.getter('cards'))
-        
+    
+deck=Deck()
+allHands=deck.distribute(4)
+for i in allHands:
+    print(i)
+    
