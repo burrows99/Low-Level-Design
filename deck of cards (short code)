@@ -1,0 +1,56 @@
+import enum
+from dataclasses import dataclass
+
+@dataclass
+class Dataclass:
+    def getter(self,instance):
+        return(object.__getattribute__(self,instance))
+    def setter(self,instance,value):
+        object.__setattr__(self,instance,value)
+    
+class Deck(Dataclass):
+    def __init__(self):
+        self.cards=[]
+    def push(self,card):
+        if(card in self.cards):
+            raise Exception('Card already present')
+            return
+        self.cards.append(card)
+    def pop(self):
+        if(self.cards):
+            self.cards.pop(-1)
+            return
+        raise Exception('No cards present. Cannot pull out a card')
+    def shuffle(self):
+        random.shuffle(self.cards)
+    def distribute(self,n):
+        N=len(self.cards)
+        
+
+class Card(Dataclass):
+    def __init__(self,facevalue,suit):
+        self.facevalue=self.__convert(facevalue)
+        self.suit=suit
+    def __convert(self,facevalue):
+        if(2<=facevalue<=10):
+            return(str(facevalue))
+        elif(facevalue==11):
+            return('J')
+        elif(facevalue==12):
+            return('Q')
+        elif(facevalue==13):
+            return('K')
+        else:
+            raise Exception('Invalid facevalue')
+            
+class Suit(enum.Enum):
+    SPADES='SPADES'
+    DIAMONDS='DIAMONDS'
+    HEARTS='HEARTS'
+    CLUBS='CLUBS'
+
+deck= Deck()
+deck.push(1)
+print(deck)
+print(deck.getter('cards'))
+        
