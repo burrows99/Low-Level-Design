@@ -12,31 +12,31 @@ class ParkingLot:
     def addCar(self,car):
         for floor in self.floors:
             if(floor.addCar(car)):
-                self.server.addEntry(car.__getattribute('registrationNumber'),self.entryGuard.noteTime())
+                self.server.addEntry(car.__getattribute__('registrationNumber'),self.entryGuard.noteTime())
                 return(True)
         return(False)
     def removeCar(self,registrationNumber):
         for floor in self.floors:
             if(floor.removeCar(registrationNumber)):
                 print('Car removed')
-                self.server.removeEntry(self,registrationNumber)
-                return(bill)
+                self.server.removeEntry(registrationNumber)
+                return(True)
         print('Car could not be removed')
         return(False)
-    def getBill(self):
+    def getBill(self,registrationNumber):
         bill=self.server.getBill(registrationNumber)
         return(bill)
     def initialize(self):
         for n in range(len(self.floors)):
-            self.Floors[n]=Floor(n,10,10,10)
+            self.floors[n]=Floor(n,5,5,5)
         
 class Floor:
     def __init__(self,floorNumber,numberOfSmallSpots,numberOfMediumSpots,numberOfLargeSpots):
         self.floorNumber=floorNumber
         self.small=[None]*numberOfSmallSpots
         self.medium=[None]*numberOfMediumSpots
-        self.large=[None]*numberOfLargeSpot
-        self.initalize()
+        self.large=[None]*numberOfLargeSpots
+        self.initialize()
     def addCar(self,car):
         if(car.__getattribute__('carType')==SpotType.SMALL):
             for n in range(len(self.small)):
@@ -44,8 +44,8 @@ class Floor:
                     return(True)
             return(False)
     def removeCar(self,registrationNumber):
-        for n in range(self.small):
-            if(self.small[n].removeCar(regitrationNumber)):
+        for n in range(len(self.small)):
+            if(self.small[n].removeCar(registrationNumber)):
                 return(True)
         return(False)
     def initialize(self):
@@ -72,10 +72,10 @@ class Spot:
                 print('Please park at the correct spot type')
                 return(False)
         else:
-            raise Exception('Spot full')
+            print('Spot full')
     def removeCar(self,registrationNumber):
         if(self.status==False):
-            if(self.spot.__getattribute__('regitrationNumber')==registrationNumber):
+            if(self.spot.__getattribute__('registrationNumber')==registrationNumber):
                 self.status=True
                 self.spot=None
                 return(True)
@@ -88,7 +88,7 @@ class Spot:
     
 class Car:
     def __init__(self,registrationNumber,carType):
-        self.registraionNumber=registrationNumber
+        self.registrationNumber=registrationNumber
         self.carType=carType
         
 class Employee:
@@ -103,12 +103,14 @@ class Server:
         self.logs={}
         self.rate=10
     def addEntry(self,registrationNumber,time):
-        self.logs[regitrationNumber]+=[time]
+        if(registrationNumber in self.logs):
+            self.logs[registrationNumber]+=[time]
+        else:
+            self.logs[registrationNumber]=[time]
     def removeEntry(self,registrationNumber):
-        del self.logs[regitrationNumber]
+        del self.logs[registrationNumber]
     def getBill(self,registrationNumber):
-        bill= (self.logs[registrationNumber][1]- self.logs[regitrationNumber][0])*rate
-        self.removeEntry(registrationNumber)
+        bill= (datetime.datetime.now()-self.logs[registrationNumber][0])*self.rate
         return(bill)
         
 class SpotType:
@@ -124,3 +126,18 @@ class CarType:
 class EmployeeType(enum.Enum):
     ENTRYGUARD=1
     EXITGUARD=2
+    
+server=Server()
+parkingLot=ParkingLot(10,10,2,server)
+cars=[]
+for i in range(15):
+    cars.append(Car(i,CarType.SMALL))
+    cars.append(Car(i+15,CarType.MEDIUM))
+    cars.append(Car(i+15+15,CarType.LARGE))
+
+ans=True
+i=0
+car=Car(0,CarType.SMALL)
+parkingLot.addCar(car)
+print(parkingLot.getBill(0))
+parkingLot.removeCar(0)
