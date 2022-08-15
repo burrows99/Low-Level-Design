@@ -4,17 +4,17 @@ class ChatApplication:
         self.url=url
         self.server=server
     def createAccount(self,id,password):
-        return(self.server.createAccount(self,id,password))
+        return(self.server.createAccount(id,password))
     def deleteAccount(self,id):
-        return(self.server.deleteAccount(self,id))
+        return(self.server.deleteAccount(id))
     def login(self,id,password):
-        return(self.server.login(self,id,password))
+        return(self.server.login(id,password))
     def logout(self,id):
-        return(self.server.logout(self,id))
+        return(self.server.logout(id))
     def sendMessage(self,senderId,recieverId,message):
-        return(self.server.sendMessage(self,senderId,recieverId,message))
+        return(self.server.sendMessage(senderId,recieverId,message))
     def recieveMessage(self,id):
-        return(self.server.recieveMessage(self,id))
+        return(self.server.recieveMessage(id))
 
 class Server:
     def __init__(self,url,userService,messageService):
@@ -22,15 +22,17 @@ class Server:
         self.userService=userService
         self.messageService=messageService
     def createAccount(self,id,password):
-        return(self.userService.createAccount(self,id,password))
+        return(self.userService.createAccount(id,password))
     def deleteAccount(self,id):
-        return(self.userService.deleteAccount(self,id))
+        return(self.userService.deleteAccount(id))
     def login(self,id,password):
-        return(self.user.login(self,id,password))
+        return(self.userService.login(id,password))
     def logout(self,id):
         return(self.user.logout(self,id))
     def sendMessage(self,senderId,recieverId,message):
-        return(self.messageService.sendMessage(self,senderId,recieverId,message))
+        return(self.messageService.sendMessage(senderId,recieverId,message))
+    def recieveMessage(self,id):
+        return(self.messageService.recieveMessage(id))
         
 class Service:
     def __init__(self,url):
@@ -58,17 +60,26 @@ class UserService(Service):
             raise Exception('Account Already exists')
             return(False)
     def login(self,id,password):
-        if(self.database[id]==password):
-            return(self.sessionService.login(id))
+        if(id in self.database):
+            if(self.database[id]==password):
+                return(self.sessionService.login(id))
+            else:
+                raise Exception('Incorrect Password')
         else:
-            raise Exception('Incorrect Password')
+            raise Exception('Account does not exists.')
     def logout(self,id):
         return(self.sessionService.logout(id))
 
 class SessionService(Service):
+    def addEntry(self,id):
+        self.database[id]=False
+        return(True)
+    def removeEntry(self,id,password):
+        del self.database[id]
+        return(True)
     def login(self,id):
         if(self.database[id]):
-            raise Excpetion('Already logged in.')
+            raise Exception('Already logged in.')
         else:
             self.database[id]=True
             return(True)
@@ -86,7 +97,7 @@ class MessageService(Service):
         super().__init__(url)
         self.sessionService=sessionService
     def sendMessage(self,senderId,recieverId,message):
-        if(self.sessionService.getStatus[senderId]):
+        if(self.sessionService.getStatus(senderId)):
             self.database[(senderId,recieverId)]=message
             return(True)
         else:
@@ -105,18 +116,18 @@ class User:
         self.password=password
         self.contactList=contactList
         self.chatApplication=chatApplication
-    def createAccount(self,id,password):
-        return(self.chatApplication.createAccount(self,id,password))
+    def createAccount(self):
+        return(self.chatApplication.createAccount(self.id,self.password))
     def deleteAccount(self):
-        return(self.chatApplication.deleteAccount(self,self.id))
+        return(self.chatApplication.deleteAccount(self.id))
     def login(self,id,password):
         return(self.chatApplication.login(id,password))
     def logout(self):
-        return(self.chatApplication.logout(self,id))
-    def sendMessage(self,id,message):
-        return(self.chatApplication.sendMessage(self,self.id,recieverId,message))
-    def reciveMessage(self):
-        return(self.chatApplication.recieveMessage(self,self.id))
+        return(self.chatApplication.logout(id))
+    def sendMessage(self,recieverId,message):
+        return(self.chatApplication.sendMessage(self.id,recieverId,message))
+    def recieveMessage(self):
+        return(self.chatApplication.recieveMessage(self.id))
 
 sessionService=SessionService('sessionservice.com')
 userService=UserService('userservice.com',sessionService)
@@ -125,6 +136,8 @@ server=Server('serverurl.com',userService,messageService)
 chatApplication=ChatApplication('Whatsapp','www.whatsapp.com',server)
 user1=User(0,'password',[],chatApplication)
 user2=User(1,'password',[],chatApplication)
+user1.createAccount()
+user2.createAccount()
 user1.login(0,'password')
 user2.login(1,'password')
 user1.sendMessage(1,'hi')
