@@ -120,13 +120,13 @@ class Account:
         return(self.onlineBookReader.deleteAccount(self.id))
     
 class AccountFactory(Account):
-    def __init__(self,id,password,onlineBookReader,accountType):
+    def __init__(self,id=None,password=None,onlineBookReader=None,accountType=None):
         super().__init__(self,id,password,onlineBookReader)
         self.accountType=accountType
         if(accountType==AccountType.CUSTOMER):
-            return(Customer(self.id,self.password,self.onlineBookReader))
+            return(CustomerBuilder(self.id,self.password,self.onlineBookReader))
         elif(accountType==AccountType.ADMIN):
-            return(Admin(self.id,self.password,self.onlineBookReader))
+            return(AdminBuilder(self.id,self.password,self.onlineBookReader))
         else:
             raise Exception('Account type invalid')
 
@@ -141,6 +141,28 @@ class Admin(Account):
         return(self.onlineBookReader.addBook(book))
     def removeBook(self,book):
         return(self.onlineBookReader.removeBook(book))
+
+class CustomerBuilder(Customer):
+    def setId(self,id):
+        self.id=id
+        return(self)
+    def setPassword(self,password):
+        self.password=password
+        return(self)
+    def setOnlineBookReader(self,onlineBookReader):
+        self.onlineBookReader=onlineBookReader
+        return(self)
+        
+class AdminBuilder(Admin):
+    def setId(self,id):
+        self.id=id
+        return(self)
+    def setPassword(self,password):
+        self.password=password
+        return(self)
+    def setOnlineBookReader(self,onlineBookReader):
+        self.onlineBookReader=onlineBookReader
+        return(self)
         
 class BookType(enum.Enum):
     HARDCOVER=1
