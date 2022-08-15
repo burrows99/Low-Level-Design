@@ -65,7 +65,7 @@ class UserService(Service):
     def logout(self,id):
         return(self.sessionService.logout(id))
 
-class SessionService:
+class SessionService(Service):
     def login(self,id):
         if(self.database[id]):
             raise Excpetion('Already logged in.')
@@ -78,10 +78,19 @@ class SessionService:
             return(True)
         else:
             raise Excpetion('Already logged out.')
+    def getStatus(self,id):
+        return(self.database[id])
 
-class MessageService:
+class MessageService(Service):
+    def __init__(self,url,sessionService):
+        super().__init__(url)
+        self.sessionService=sessionService
     def sendMessage(self,senderId,recieverId,message):
-        self.database[(senderId,recieverId)]=message
+        if(self.sessionService.getStatus[senderId]):
+            self.database[(senderId,recieverId)]=message
+            return(True)
+        else:
+            raise Exception('Please login to send message.')
     def recieveMessage(self,id):
         listOfMessages=[]
         for messageDirection in self.database:
@@ -101,10 +110,22 @@ class User:
     def deleteAccount(self):
         return(self.chatApplication.deleteAccount(self,self.id))
     def login(self,id,password):
-        return(self.chatApplication.login(self,id,password))
+        return(self.chatApplication.login(id,password))
     def logout(self):
         return(self.chatApplication.logout(self,id))
     def sendMessage(self,id,message):
         return(self.chatApplication.sendMessage(self,self.id,recieverId,message))
     def reciveMessage(self):
         return(self.chatApplication.recieveMessage(self,self.id))
+
+sessionService=SessionService('sessionservice.com')
+userService=UserService('userservice.com',sessionService)
+messageService=MessageService('messageservice.com',sessionService)
+server=Server('serverurl.com',userService,messageService)
+chatApplication=ChatApplication('Whatsapp','www.whatsapp.com',server)
+user1=User(0,'password',[],chatApplication)
+user2=User(1,'password',[],chatApplication)
+user1.login(0,'password')
+user2.login(1,'password')
+user1.sendMessage(1,'hi')
+print(user2.recieveMessage())
